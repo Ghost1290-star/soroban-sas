@@ -364,7 +364,13 @@ impl SASClient {
             simulate::encode_arg(env, resolver)?,
             simulate::encode_arg(env, &revocable)?,
         ];
-        invoke_read_only(env, rpc, registry_contract_id, "get_schema_by_content", args)
+        invoke_read_only(
+            env,
+            rpc,
+            registry_contract_id,
+            "get_schema_by_content",
+            args,
+        )
     }
 
     /// Calls `SAS::get_attester_key(attester)` via `simulateTransaction` — a
@@ -1658,6 +1664,7 @@ impl SASClient {
 
     /// Like [`renew_attestation`](Self::renew_attestation) but allows a
     /// [`FeePolicy`].
+    #[allow(clippy::too_many_arguments)]
     pub fn renew_attestation_with_fee_policy(
         &self,
         env: &Env,
@@ -1690,7 +1697,6 @@ impl SASClient {
             fee_policy,
         )
     }
-
 }
 
 fn encode_multi_attest_arg(env: &Env, attestations: &[Attestation]) -> Result<ScVal, SdkError> {
