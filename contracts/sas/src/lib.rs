@@ -829,7 +829,6 @@ impl SAS {
     /// (`NotInitialized` otherwise), and reports a still-failing Indexer as
     /// `SASError::IndexerUnavailable` so callers know to retry later. On
     /// success emits `Reindexed(uid)`.
-
     pub fn bulk_reindex(env: Env, uids: soroban_sdk::Vec<UID>) -> soroban_sdk::Vec<UID> {
         extend_instance_ttl(&env);
         if uids.len() > 100 {
@@ -1041,7 +1040,12 @@ impl SAS {
         for i in 0..len {
             let uid = uids.get(i).unwrap();
             let nonce = nonces.get(i).unwrap();
-            let attester = env.storage().persistent().get::<_, Attestation>(&uid).unwrap().attester;
+            let attester = env
+                .storage()
+                .persistent()
+                .get::<_, Attestation>(&uid)
+                .unwrap()
+                .attester;
             Self::consume_delegation_nonce(&env, &attester, nonce);
             Self::revoke_internal(env.clone(), uid);
         }
@@ -1228,10 +1232,11 @@ impl SAS {
         // Validate that the new expiration time extends or maintains the current one.
         // Perpetual (0) is always allowed. If current is perpetual, it stays perpetual.
         // If current is non-zero, new must be 0 (perpetual) or >= current.
-        if attestation.expiration_time != 0 {
-            if new_expiration_time != 0 && new_expiration_time < attestation.expiration_time {
-                panic_with_error!(&env, SASError::InvalidTTL);
-            }
+        if attestation.expiration_time != 0
+            && new_expiration_time != 0
+            && new_expiration_time < attestation.expiration_time
+        {
+            panic_with_error!(&env, SASError::InvalidTTL);
         }
         // If current expiration_time is 0 (perpetual), new_expiration_time must also be 0
         // (we don't allow making a perpetual attestation expirable)
@@ -1260,7 +1265,11 @@ impl SAS {
             let _ = env.try_invoke_contract::<(), soroban_sdk::Error>(
                 &indexer,
                 &Symbol::new(&env, "handle_renew"),
-                soroban_sdk::vec![&env, uid.clone().into_val(&env), new_expiration_time.into_val(&env)],
+                soroban_sdk::vec![
+                    &env,
+                    uid.clone().into_val(&env),
+                    new_expiration_time.into_val(&env)
+                ],
             );
         }
 
@@ -1866,10 +1875,10 @@ mod test_issue_242;
 #[cfg(test)]
 mod test_issue_252;
 #[cfg(test)]
-mod verify_batch_test;
-#[cfg(test)]
-mod test_timestamp;
-#[cfg(test)]
 mod test_issue_293;
 #[cfg(test)]
 mod test_issue_296;
+#[cfg(test)]
+mod test_timestamp;
+#[cfg(test)]
+mod verify_batch_test;

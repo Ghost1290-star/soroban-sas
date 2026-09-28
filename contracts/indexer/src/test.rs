@@ -702,6 +702,7 @@ fn test_paginated_reads_cover_every_dimension_and_boundary() {
         total,
     );
 
+    #[allow(clippy::type_complexity)]
     let pages: [(&str, &dyn Fn(u32, u32) -> soroban_sdk::Vec<UID>); 3] = [
         ("recipient", &|c, l| {
             client.get_atts_by_recipient_paginated(&recipient, &c, &l)

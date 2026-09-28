@@ -102,11 +102,9 @@ pub fn read_and_renew_anchor(env: &Env, uid: &UID, revocation: bool) -> Option<T
     let key = anchor_key(uid, revocation);
     let anchor: Option<TimestampAnchor> = env.storage().persistent().get(&key);
     if anchor.is_some() {
-        env.storage().persistent().extend_ttl(
-            &key,
-            LEDGERS_IN_ONE_YEAR,
-            LEDGERS_IN_ONE_YEAR,
-        );
+        env.storage()
+            .persistent()
+            .extend_ttl(&key, LEDGERS_IN_ONE_YEAR, LEDGERS_IN_ONE_YEAR);
     }
     anchor
 }

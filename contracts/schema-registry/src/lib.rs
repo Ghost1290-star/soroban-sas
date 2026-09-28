@@ -205,7 +205,9 @@ pub struct OwnershipTransferStatus {
 
 /// Reads a schema's configured owner set, if one exists.
 fn owner_set(env: &Env, uid: &UID) -> Option<OwnerSet> {
-    env.storage().persistent().get(&(SCHEMA_OWNERS, uid.clone()))
+    env.storage()
+        .persistent()
+        .get(&(SCHEMA_OWNERS, uid.clone()))
 }
 
 /// Reads a schema's creator/owner, kept in its own key so `SchemaRecord`
@@ -295,11 +297,9 @@ fn validate_owner_set(env: &Env, owners: &Vec<Address>, threshold: u32) {
 fn finalize_ownership_transfer(env: &Env, uid: &UID, old_owner: &Address, new_owner: &Address) {
     let creator_key = (SCHEMA_CREATOR, uid.clone());
     env.storage().persistent().set(&creator_key, new_owner);
-    env.storage().persistent().extend_ttl(
-        &creator_key,
-        LEDGERS_IN_ONE_YEAR,
-        LEDGERS_IN_ONE_YEAR,
-    );
+    env.storage()
+        .persistent()
+        .extend_ttl(&creator_key, LEDGERS_IN_ONE_YEAR, LEDGERS_IN_ONE_YEAR);
     env.storage()
         .persistent()
         .remove(&(PENDING_OWNERSHIP, uid.clone()));
@@ -368,14 +368,10 @@ fn record_approval(env: &Env, uid: &UID, approver: &Address) -> PendingOwnership
     }
 
     pending.approvals.push_back(approver.clone());
+    env.storage().persistent().set(&pending_key, &pending);
     env.storage()
         .persistent()
-        .set(&pending_key, &pending);
-    env.storage().persistent().extend_ttl(
-        &pending_key,
-        LEDGERS_IN_ONE_YEAR,
-        LEDGERS_IN_ONE_YEAR,
-    );
+        .extend_ttl(&pending_key, LEDGERS_IN_ONE_YEAR, LEDGERS_IN_ONE_YEAR);
 
     let count = pending.approvals.len();
     env.events().publish(
@@ -718,7 +714,6 @@ impl SchemaRegistry {
     /// Registers a new schema in the registry, free of charge.
     ///
     /// See `docs/schemas.md` for the schema syntax specification.
-
     pub fn transfer_ownership(env: Env, sender: Address, uid: UID, new_owner: Address) {
         sender.require_auth();
         extend_instance_ttl(&env);
@@ -807,11 +802,9 @@ impl SchemaRegistry {
 
         let set_key = (SCHEMA_OWNERS, uid.clone());
         env.storage().persistent().set(&set_key, &set);
-        env.storage().persistent().extend_ttl(
-            &set_key,
-            LEDGERS_IN_ONE_YEAR,
-            LEDGERS_IN_ONE_YEAR,
-        );
+        env.storage()
+            .persistent()
+            .extend_ttl(&set_key, LEDGERS_IN_ONE_YEAR, LEDGERS_IN_ONE_YEAR);
 
         // Approvals gathered under the previous set can no longer authorize
         // anything, so the transfer is abandoned rather than left to be
@@ -1430,8 +1423,8 @@ impl SchemaRegistry {
 }
 
 #[cfg(test)]
+mod owner_multisig_test;
+#[cfg(test)]
 mod test;
 #[cfg(test)]
 mod test_extra;
-#[cfg(test)]
-mod owner_multisig_test;

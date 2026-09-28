@@ -536,7 +536,9 @@ mod renew {
         pub env: Env,
         pub sas_client: SASClient<'static>,
         pub sas_id: Address,
+        #[allow(dead_code)]
         pub attester: Address,
+        #[allow(dead_code)]
         pub recipient: Address,
         pub uid: UID,
     }
@@ -600,11 +602,7 @@ fn test_renew_attestation_success_extends_expiration() {
     // Attestation should still be valid and have new expiration
     assert!(f.sas_client.verify_attestation(&f.uid));
     let stored: Attestation = f.env.as_contract(&f.sas_id, || {
-        f.env
-            .storage()
-            .persistent()
-            .get(&f.uid)
-            .unwrap()
+        f.env.storage().persistent().get(&f.uid).unwrap()
     });
     assert_eq!(stored.expiration_time, new_expiration);
 }
@@ -619,11 +617,7 @@ fn test_renew_attestation_success_makes_perpetual() {
 
     assert!(f.sas_client.verify_attestation(&f.uid));
     let stored: Attestation = f.env.as_contract(&f.sas_id, || {
-        f.env
-            .storage()
-            .persistent()
-            .get(&f.uid)
-            .unwrap()
+        f.env.storage().persistent().get(&f.uid).unwrap()
     });
     assert_eq!(stored.expiration_time, 0);
 }
@@ -703,7 +697,7 @@ fn test_renew_attestation_rejects_unknown_uid() {
 
 #[test]
 fn test_renew_attestation_rejects_mismatched_attester() {
-    let f = renew::setup(10000);
+    let _f = renew::setup(10000);
     // The mock_all_auths allows any auth, so we need to test with a different approach
     // Just verify the function requires attester auth by calling with wrong attester
     // This is implicitly tested since the contract requires attestation.attester.require_auth()
@@ -3714,7 +3708,6 @@ mod snapshot_tests {
     /// 1. Review the change carefully for unintended struct/field modifications
     /// 2. Update snapshots explicitly (e.g., UPDATE_SNAPSHOTS=1 cargo test)
     /// 3. Document the breaking change in CHANGELOG.md
-
     fn setup_sas_with_registry() -> (Env, Address, Address) {
         let env = Env::default();
         let registry_id = env.register_contract(None, mock1::MockRegistry);

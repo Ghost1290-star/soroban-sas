@@ -256,8 +256,7 @@ mod tests {
     fn fixture(env: &Env, attester: &Address, recipient: &Address) -> Attestation {
         let schema_uid = UID(BytesN::from_array(env, &[2u8; 32]));
         let data = Bytes::from_slice(env, b"payload");
-        let uid =
-            soroban_sas_common::attestation_uid(env, &schema_uid, recipient, attester, &data);
+        let uid = soroban_sas_common::attestation_uid(env, &schema_uid, recipient, attester, &data);
         Attestation {
             uid,
             schema_uid,
@@ -279,9 +278,15 @@ mod tests {
         let attester = attester(&env, &key);
         let attestation = fixture(&env, &attester, &Address::generate(&env));
 
-        let signed =
-            sign_offchain_attestation(&env, &key.to_bytes(), &attestation, 7, NETWORK, &contract_id())
-                .unwrap();
+        let signed = sign_offchain_attestation(
+            &env,
+            &key.to_bytes(),
+            &attestation,
+            7,
+            NETWORK,
+            &contract_id(),
+        )
+        .unwrap();
         assert_eq!(signed.public_key, key.verifying_key().to_bytes());
         assert_eq!(signed.nonce, 7);
 
@@ -294,7 +299,10 @@ mod tests {
             &signed.signature
         )
         .is_ok());
-        assert_eq!(signed.digest, attestation_digest(&env, &attestation, &domain));
+        assert_eq!(
+            signed.digest,
+            attestation_digest(&env, &attestation, &domain)
+        );
     }
 
     #[test]
@@ -304,9 +312,15 @@ mod tests {
         let attester = attester(&env, &key);
         let attestation = fixture(&env, &attester, &Address::generate(&env));
 
-        let signed =
-            sign_offchain_attestation(&env, &key.to_bytes(), &attestation, 7, NETWORK, &contract_id())
-                .unwrap();
+        let signed = sign_offchain_attestation(
+            &env,
+            &key.to_bytes(),
+            &attestation,
+            7,
+            NETWORK,
+            &contract_id(),
+        )
+        .unwrap();
         let domain = delegation_domain(&env, NETWORK, &contract_id(), 7).unwrap();
 
         let mut tampered = attestation.clone();
@@ -328,9 +342,15 @@ mod tests {
         let attester = attester(&env, &key);
         let attestation = fixture(&env, &attester, &Address::generate(&env));
 
-        let signed =
-            sign_offchain_attestation(&env, &key.to_bytes(), &attestation, 7, NETWORK, &contract_id())
-                .unwrap();
+        let signed = sign_offchain_attestation(
+            &env,
+            &key.to_bytes(),
+            &attestation,
+            7,
+            NETWORK,
+            &contract_id(),
+        )
+        .unwrap();
 
         for (network, contract, nonce) in [
             (NETWORK, contract_id(), 8),

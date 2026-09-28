@@ -315,17 +315,23 @@ fn test_get_schema_by_content_matches_uid_lookup_and_rejects_invalid_syntax() {
     let by_uid = client.get_schema(&uid).expect("registered uid resolves");
     assert_eq!(by_content.uid, by_uid.uid);
     assert_eq!(by_content.schema, schema);
-    assert_eq!(by_content.revocable, true);
+    assert!(by_content.revocable);
 
     // Policy fields participate in the UID, so flipping either one addresses
     // different, unregistered content.
-    assert!(client.get_schema_by_content(&schema, &resolver, &false).is_none());
+    assert!(client
+        .get_schema_by_content(&schema, &resolver, &false)
+        .is_none());
     let other_resolver = Address::generate(&env);
-    assert!(client.get_schema_by_content(&schema, &other_resolver, &true).is_none());
+    assert!(client
+        .get_schema_by_content(&schema, &other_resolver, &true)
+        .is_none());
 
     // Unregistered-but-valid content returns None rather than reverting.
     let unknown = String::from_str(&env, "uint32 score");
-    assert!(client.get_schema_by_content(&unknown, &resolver, &true).is_none());
+    assert!(client
+        .get_schema_by_content(&unknown, &resolver, &true)
+        .is_none());
 
     // Malformed syntax reverts with the same typed error register raises.
     let malformed = String::from_str(&env, "!!!");
@@ -336,5 +342,7 @@ fn test_get_schema_by_content_matches_uid_lookup_and_rejects_invalid_syntax() {
 
     // Deprecated content resolves to None, matching get_schema.
     client.deprecate(&uid, &admin);
-    assert!(client.get_schema_by_content(&schema, &resolver, &true).is_none());
+    assert!(client
+        .get_schema_by_content(&schema, &resolver, &true)
+        .is_none());
 }

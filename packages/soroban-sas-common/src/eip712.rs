@@ -236,7 +236,7 @@ pub enum FieldValue<'a> {
     List(&'static FieldType, &'a [FieldValue<'a>]),
 }
 
-impl<'a> FieldValue<'a> {
+impl FieldValue<'_> {
     /// A `bool` as a word: `0` or `1`.
     pub fn from_bool(value: bool) -> Self {
         let mut word = [0u8; 32];
