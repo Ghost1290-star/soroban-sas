@@ -60,7 +60,10 @@ fn configure_owner_set_rejects_threshold_out_of_range() {
         &owner_vec(&env, &[a.clone(), b.clone()]),
         &3,
     );
-    assert!(too_high.is_err(), "threshold above owner count must be rejected");
+    assert!(
+        too_high.is_err(),
+        "threshold above owner count must be rejected"
+    );
 
     let zero = client.try_configure_owner_set(&uid, &creator, &owner_vec(&env, &[a, b]), &0);
     assert!(zero.is_err(), "a zero threshold must be rejected");
@@ -255,7 +258,10 @@ fn single_signature_transfer_cannot_bypass_multisig_set() {
     // Both single-signature entrypoints must refuse while the set requires
     // more than one approval.
     let legacy = client.try_transfer_schema_ownership(&uid, &target);
-    assert!(legacy.is_err(), "transfer_schema_ownership must enforce the set");
+    assert!(
+        legacy.is_err(),
+        "transfer_schema_ownership must enforce the set"
+    );
 
     let sender = client.try_transfer_ownership(&creator, &uid, &target);
     assert!(sender.is_err(), "transfer_ownership must enforce the set");

@@ -5,7 +5,7 @@
 //! expired UIDs, and must reject oversized batches up front instead of
 //! silently truncating them.
 
-use crate::{SASClient, SAS, MAX_VERIFY_BATCH};
+use crate::{SASClient, MAX_VERIFY_BATCH, SAS};
 use soroban_sas_common::{Attestation, UID};
 use soroban_sdk::testutils::{Address as _, Ledger as _};
 use soroban_sdk::{contract, contractimpl, Address, Bytes, BytesN, Env, Vec};
@@ -203,10 +203,9 @@ fn verify_all_requires_every_uid_to_verify() {
         .sas_client
         .verify_all_attestations(&f.uids(&[live.clone(), other_live.clone()])));
 
-    assert!(!f.sas_client.verify_all_attestations(&f.uids(&[
-        live.clone(),
-        revoked.clone()
-    ])));
+    assert!(!f
+        .sas_client
+        .verify_all_attestations(&f.uids(&[live.clone(), revoked.clone()])));
 
     assert!(!f
         .sas_client
@@ -237,7 +236,10 @@ fn batch_verify_rejects_oversized_batch() {
     }
 
     assert!(f.sas_client.try_verify_attestations(&oversized).is_err());
-    assert!(f.sas_client.try_verify_all_attestations(&oversized).is_err());
+    assert!(f
+        .sas_client
+        .try_verify_all_attestations(&oversized)
+        .is_err());
 }
 
 #[test]
