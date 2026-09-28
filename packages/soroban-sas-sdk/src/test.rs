@@ -801,19 +801,13 @@ fn schema_withdraw_fees_encodes_amount_and_settles() {
             invocation.clone()
         })
         .collect();
-    assert_eq!(
-        invocations[0].function_name.0.to_string(),
-        "withdraw_fees"
-    );
+    assert_eq!(invocations[0].function_name.0.to_string(), "withdraw_fees");
     assert_eq!(invocations[0].args.len(), 1);
     assert_eq!(
         invocations[0].args[0],
         crate::simulate::encode_arg(&env, &500i128).unwrap()
     );
-    assert_eq!(
-        invocations[1].function_name.0.to_string(),
-        "withdraw_fees"
-    );
+    assert_eq!(invocations[1].function_name.0.to_string(), "withdraw_fees");
     assert_eq!(
         invocations[1].args[0],
         crate::simulate::encode_arg(&env, &250i128).unwrap()
@@ -877,14 +871,7 @@ fn schema_withdraw_fees_surfaces_unauthorized_simulation_as_contract_error_301()
     let client = crate::client::SASClient::new(stellar_strkey::Contract([56u8; 32]).to_string());
     let registry_contract_id = stellar_strkey::Contract([56u8; 32]).to_string();
     let error = client
-        .withdraw_schema_fees(
-            &env,
-            &rpc,
-            "network",
-            &seed,
-            &registry_contract_id,
-            500,
-        )
+        .withdraw_schema_fees(&env, &rpc, "network", &seed, &registry_contract_id, 500)
         .unwrap_err();
     server.join().unwrap();
     assert!(matches!(error, crate::errors::SdkError::ContractError(301)));

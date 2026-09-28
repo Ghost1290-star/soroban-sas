@@ -6,7 +6,7 @@
 //! per-item signature binding to the signed payload, per-attester nonce
 //! ordering, and the all-or-nothing nature of a failed batch.
 
-use crate::{SASClient, SAS, MAX_MULTI_ATTEST, MAX_MULTI_REVOKE};
+use crate::{SASClient, MAX_MULTI_ATTEST, MAX_MULTI_REVOKE, SAS};
 use ed25519_dalek::{Signer, SigningKey};
 use soroban_sas_common::{
     hash_delegated_revocation, hash_offchain_attestation, Attestation, AttestationDomain, SASError,
@@ -81,8 +81,8 @@ fn key(seed: [u8; 32]) -> SigningKey {
 }
 
 fn account(env: &Env, signing_key: &SigningKey) -> Address {
-    let strkey = stellar_strkey::ed25519::PublicKey(signing_key.verifying_key().to_bytes())
-        .to_string();
+    let strkey =
+        stellar_strkey::ed25519::PublicKey(signing_key.verifying_key().to_bytes()).to_string();
     Address::from_string(&SorobanString::from_str(env, &strkey))
 }
 
@@ -211,10 +211,7 @@ fn multi_attest_by_delegation_rejects_mismatched_vector_lengths() {
     let att_b = fixture(&env, &attester, &Address::generate(&env), [11u8; 32]);
 
     // Two attestations but only one nonce/signature/key.
-    let one_sig = vec_sig(
-        &env,
-        &[sign_attestation(&env, &sas_id, &key_a, &att_a, 1)],
-    );
+    let one_sig = vec_sig(&env, &[sign_attestation(&env, &sas_id, &key_a, &att_a, 1)]);
     let res = client.try_multi_attest_by_delegation(
         &vec_att(&env, &[att_a, att_b]),
         &vec_u64(&env, &[1, 2]),
@@ -326,18 +323,19 @@ fn multi_attest_by_delegation_rejects_an_oversized_batch() {
     let mut signatures = soroban_sdk::Vec::new(&env);
     let mut public_keys = soroban_sdk::Vec::new(&env);
     for i in 0..count {
-        attestations.push_back(fixture(&env, &attester, &Address::generate(&env), [i as u8; 32]));
+        attestations.push_back(fixture(
+            &env,
+            &attester,
+            &Address::generate(&env),
+            [i as u8; 32],
+        ));
         nonces.push_back(i as u64 + 1);
         signatures.push_back(BytesN::from_array(&env, &[0u8; 64]));
         public_keys.push_back(BytesN::from_array(&env, &[0u8; 32]));
     }
 
-    let res = client.try_multi_attest_by_delegation(
-        &attestations,
-        &nonces,
-        &signatures,
-        &public_keys,
-    );
+    let res =
+        client.try_multi_attest_by_delegation(&attestations, &nonces, &signatures, &public_keys);
     assert_eq!(res, Err(Ok(SASError::BatchTooLarge.into())));
 }
 
@@ -451,7 +449,6 @@ fn multi_revoke_by_delegation_rejects_an_oversized_batch() {
         public_keys.push_back(BytesN::from_array(&env, &[0u8; 32]));
     }
 
-    let res =
-        client.try_multi_revoke_by_delegation(&uids, &nonces, &signatures, &public_keys);
+    let res = client.try_multi_revoke_by_delegation(&uids, &nonces, &signatures, &public_keys);
     assert_eq!(res, Err(Ok(SASError::BatchTooLarge.into())));
 }
